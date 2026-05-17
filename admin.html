@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Єпатаж — Адмін панель</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--rose:#c9748a;--rose-dark:#8a3d52;--cream:#fdf8f5;--dark:#2a1f23;--mid:#7a6068}
+body{font-family:'Jost',sans-serif;background:#f5f0f2;color:var(--dark);min-height:100vh}
+
+/* LOGIN */
+.login-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#2a1f23 0%,#4a2d38 100%)}
+.login-box{background:#fff;padding:3rem;width:100%;max-width:380px;text-align:center}
+.login-logo{font-family:'Cormorant Garamond',serif;font-size:2rem;font-weight:300;font-style:italic;color:var(--dark);margin-bottom:0.3rem}
+.login-logo span{color:var(--rose)}
+.login-sub{font-size:0.75rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--mid);margin-bottom:2rem}
+.login-box input{width:100%;padding:0.8rem 1rem;border:1px solid #e0d0d5;font-family:'Jost',sans-serif;font-size:0.9rem;margin-bottom:1rem;outline:none;transition:border 0.2s}
+.login-box input:focus{border-color:var(--rose)}
+.login-btn{width:100%;background:var(--dark);color:#fff;border:none;padding:0.9rem;font-size:0.8rem;letter-spacing:0.2em;text-transform:uppercase;cursor:pointer;transition:background 0.2s}
+.login-btn:hover{background:var(--rose-dark)}
+.login-error{color:#c0392b;font-size:0.8rem;margin-top:0.8rem;display:none}
+
+/* ADMIN */
+.admin-wrap{display:none}
+.admin-nav{background:var(--dark);padding:1rem 2rem;display:flex;align-items:center;justify-content:space-between}
+.admin-nav .logo{font-family:'Cormorant Garamond',serif;font-size:1.5rem;font-weight:300;font-style:italic;color:#fff}
+.admin-nav .logo span{color:var(--rose)}
+.admin-nav-right{display:flex;align-items:center;gap:1rem}
+.admin-nav a{color:rgba(255,255,255,0.6);text-decoration:none;font-size:0.8rem;letter-spacing:0.1em}
+.admin-nav a:hover{color:var(--rose)}
+.logout-btn{background:transparent;border:1px solid rgba(255,255,255,0.2);color:rgba(255,255,255,0.6);padding:0.4rem 1rem;font-size:0.75rem;letter-spacing:0.1em;cursor:pointer;transition:all 0.2s}
+.logout-btn:hover{border-color:var(--rose);color:var(--rose)}
+
+.admin-body{max-width:1100px;margin:2rem auto;padding:0 2rem;display:grid;grid-template-columns:1fr 1.5fr;gap:2rem;align-items:start}
+
+/* FORM */
+.form-card{background:#fff;padding:2rem;border:0.5px solid #e0d0d5}
+.form-card h2{font-family:'Cormorant Garamond',serif;font-size:1.5rem;font-weight:300;margin-bottom:1.5rem;color:var(--dark)}
+.form-group{margin-bottom:1.2rem}
+.form-group label{display:block;font-size:0.75rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--mid);margin-bottom:0.4rem}
+.form-group input, .form-group select, .form-group textarea{width:100%;padding:0.7rem 0.9rem;border:1px solid #e0d0d5;font-family:'Jost',sans-serif;font-size:0.9rem;outline:none;transition:border 0.2s;background:#fff}
+.form-group input:focus, .form-group select:focus, .form-group textarea:focus{border-color:var(--rose)}
+.form-group textarea{resize:vertical;min-height:80px}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+.img-preview{width:100%;height:160px;object-fit:cover;margin-top:0.5rem;display:none;border:1px solid #e0d0d5}
+.submit-btn{width:100%;background:var(--rose);color:#fff;border:none;padding:0.9rem;font-size:0.8rem;letter-spacing:0.2em;text-transform:uppercase;cursor:pointer;transition:background 0.2s;margin-top:0.5rem}
+.submit-btn:hover{background:var(--rose-dark)}
+.success-msg{background:#e8f5e9;color:#2e7d32;padding:0.8rem 1rem;font-size:0.85rem;margin-top:1rem;display:none;text-align:center}
+
+/* PRODUCTS LIST */
+.list-card{background:#fff;padding:2rem;border:0.5px solid #e0d0d5}
+.list-card h2{font-family:'Cormorant Garamond',serif;font-size:1.5rem;font-weight:300;margin-bottom:1.5rem;color:var(--dark);display:flex;align-items:center;justify-content:space-between}
+.count-badge{background:var(--rose);color:#fff;font-size:0.7rem;font-family:'Jost',sans-serif;padding:0.2rem 0.6rem;border-radius:20px}
+.product-item{display:flex;align-items:center;gap:1rem;padding:1rem 0;border-bottom:0.5px solid #f0e5e8}
+.product-item:last-child{border-bottom:none}
+.product-thumb{width:60px;height:60px;object-fit:cover;background:#f5e6ea;display:flex;align-items:center;justify-content:center;font-size:1.5rem;color:rgba(201,116,138,0.4);flex-shrink:0}
+.product-thumb img{width:60px;height:60px;object-fit:cover}
+.product-info{flex:1}
+.product-info-name{font-size:0.9rem;font-weight:500;color:var(--dark)}
+.product-info-price{font-size:0.8rem;color:var(--rose-dark);margin-top:0.2rem}
+.product-info-sizes{font-size:0.72rem;color:var(--mid)}
+.delete-btn{background:transparent;border:1px solid #e0d0d5;color:var(--mid);padding:0.4rem 0.8rem;font-size:0.72rem;cursor:pointer;transition:all 0.2s;flex-shrink:0}
+.delete-btn:hover{border-color:#c0392b;color:#c0392b}
+.empty-list{text-align:center;padding:2rem;color:var(--mid);font-family:'Cormorant Garamond',serif;font-size:1.1rem;font-style:italic}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div class="login-wrap" id="login-wrap">
+  <div class="login-box">
+    <div class="login-logo"><span>Є</span>патаж</div>
+    <div class="login-sub">Адмін панель</div>
+    <input type="text" id="login-input" placeholder="Логін" autocomplete="username">
+    <input type="password" id="pass-input" placeholder="Пароль" autocomplete="current-password">
+    <button class="login-btn" onclick="doLogin()">Увійти</button>
+    <div class="login-error" id="login-error">Невірний логін або пароль</div>
+  </div>
+</div>
+
+<!-- ADMIN -->
+<div class="admin-wrap" id="admin-wrap">
+  <div class="admin-nav">
+    <div class="logo"><span>Є</span>патаж</div>
+    <div class="admin-nav-right">
+      <a href="index.html" target="_blank">← Переглянути сайт</a>
+      <button class="logout-btn" onclick="doLogout()">Вийти</button>
+    </div>
+  </div>
+
+  <div class="admin-body">
+    <!-- FORM -->
+    <div class="form-card">
+      <h2>Додати товар</h2>
+
+      <div class="form-group">
+        <label>Назва товару *</label>
+        <input type="text" id="f-name" placeholder="Комплект «Троянда»">
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Ціна (грн) *</label>
+          <input type="number" id="f-price" placeholder="890">
+        </div>
+        <div class="form-group">
+          <label>Стара ціна (грн)</label>
+          <input type="number" id="f-old-price" placeholder="1200">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Розміри</label>
+        <input type="text" id="f-sizes" placeholder="XS · S · M · L · XL">
+      </div>
+
+      <div class="form-group">
+        <label>Позначка на картці</label>
+        <select id="f-badge">
+          <option value="">Без позначки</option>
+          <option value="New">New</option>
+          <option value="Sale">Sale</option>
+          <option value="Top">Top</option>
+          <option value="Хіт">Хіт</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Фото товару</label>
+        <input type="file" id="f-image" accept="image/*" onchange="previewImage(this)">
+        <img class="img-preview" id="img-preview" alt="Preview">
+      </div>
+
+      <button class="submit-btn" onclick="addProduct()">Додати товар до каталогу</button>
+      <div class="success-msg" id="success-msg">✓ Товар успішно додано!</div>
+    </div>
+
+    <!-- LIST -->
+    <div class="list-card">
+      <h2>
+        Каталог товарів
+        <span class="count-badge" id="count-badge">0</span>
+      </h2>
+      <div id="products-list"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+const STORAGE_KEY = 'epatazh_products';
+const ADMIN_LOGIN = 'admin';
+const ADMIN_PASS = 'epatazh2026';
+
+function getProducts() {
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; }
+  catch { return []; }
+}
+function saveProducts(p) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(p));
+}
+
+function doLogin() {
+  const login = document.getElementById('login-input').value;
+  const pass = document.getElementById('pass-input').value;
+  if (login === ADMIN_LOGIN && pass === ADMIN_PASS) {
+    document.getElementById('login-wrap').style.display = 'none';
+    document.getElementById('admin-wrap').style.display = 'block';
+    renderList();
+  } else {
+    document.getElementById('login-error').style.display = 'block';
+  }
+}
+
+document.getElementById('pass-input').addEventListener('keydown', e => {
+  if (e.key === 'Enter') doLogin();
+});
+
+function doLogout() {
+  document.getElementById('login-wrap').style.display = 'flex';
+  document.getElementById('admin-wrap').style.display = 'none';
+  document.getElementById('login-input').value = '';
+  document.getElementById('pass-input').value = '';
+}
+
+function previewImage(input) {
+  const preview = document.getElementById('img-preview');
+  if (input.files && input.files[0]) {
+    const reader = new FileReader();
+    reader.onload = e => {
+      preview.src = e.target.result;
+      preview.style.display = 'block';
+    };
+    reader.readAsDataURL(input.files[0]);
+  }
+}
+
+function addProduct() {
+  const name = document.getElementById('f-name').value.trim();
+  const price = document.getElementById('f-price').value.trim();
+  if (!name || !price) { alert('Заповніть назву та ціну!'); return; }
+
+  const preview = document.getElementById('img-preview');
+  const product = {
+    id: Date.now(),
+    name,
+    price,
+    oldPrice: document.getElementById('f-old-price').value.trim(),
+    sizes: document.getElementById('f-sizes').value.trim(),
+    badge: document.getElementById('f-badge').value,
+    image: preview.style.display !== 'none' ? preview.src : ''
+  };
+
+  const products = getProducts();
+  products.unshift(product);
+  saveProducts(products);
+  renderList();
+
+  // reset form
+  document.getElementById('f-name').value = '';
+  document.getElementById('f-price').value = '';
+  document.getElementById('f-old-price').value = '';
+  document.getElementById('f-sizes').value = '';
+  document.getElementById('f-badge').value = '';
+  document.getElementById('f-image').value = '';
+  preview.style.display = 'none';
+
+  const msg = document.getElementById('success-msg');
+  msg.style.display = 'block';
+  setTimeout(() => msg.style.display = 'none', 3000);
+}
+
+function deleteProduct(id) {
+  if (!confirm('Видалити товар?')) return;
+  const products = getProducts().filter(p => p.id !== id);
+  saveProducts(products);
+  renderList();
+}
+
+function renderList() {
+  const products = getProducts();
+  document.getElementById('count-badge').textContent = products.length;
+  const list = document.getElementById('products-list');
+  if (!products.length) {
+    list.innerHTML = '<div class="empty-list">Товарів ще немає.<br>Додайте перший товар!</div>';
+    return;
+  }
+  list.innerHTML = products.map(p => `
+    <div class="product-item">
+      <div class="product-thumb">
+        ${p.image ? `<img src="${p.image}" alt="${p.name}">` : '✦'}
+      </div>
+      <div class="product-info">
+        <div class="product-info-name">${p.name}</div>
+        <div class="product-info-price">${p.oldPrice ? `<s style="color:#aaa;font-weight:300">${p.oldPrice} грн</s> ` : ''}${p.price} грн</div>
+        ${p.sizes ? `<div class="product-info-sizes">${p.sizes}</div>` : ''}
+      </div>
+      <button class="delete-btn" onclick="deleteProduct(${p.id})">Видалити</button>
+    </div>
+  `).join('');
+}
+</script>
+</body>
+</html>
